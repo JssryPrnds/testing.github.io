@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muses Talent Competition</title>
+<style>
+    /* CSS styles */
+    /* You can customize the styles based on your preference */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-image: linear-gradient(rgba(213, 227, 145, 0.54),rgba(77, 220, 132, 0.677));
+        background-size: contain;
+        background-position: center;
+    }
+    .container {
+        position: relative;
+        text-align: center;
+    }
+    .container h1{
+        font-size: 40px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 2px solid #028300;
+        padding: 8px;
+        text-align: center;
+    }
+    th {
+        background-color: #bfd81b;
+    }
+    th:first-child, td:first-child {
+        text-align: left;
+    }
+    #finalScores {
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Bida Kabataan: AN Inter-Barangay Basketball League 2024</h1>
+    <h1>Muses Talent Competition</h1>
+    <div id="contestants"></div>
+    <div id="finalScores"></div>
+</div>
+
+<script>
+    var numContestants = 24; // Number of contestants
+    var numJudges = 3; // Number of judges
+
+    // JavaScript logic
+
+    // Create tables for each contestant
+    for (var i = 1; i <= numContestants; i++) {
+        var contestantTable = createContestantTable(i);
+        document.getElementById('contestants').appendChild(contestantTable);
+    }
+
+    function createContestantTable(contestantNumber) {
+        var table = document.createElement('table');
+        var headerRow = table.insertRow();
+        var headerCell = document.createElement('th');
+        headerCell.textContent = 'Contestant ' + contestantNumber; // Add contestant number to header
+        headerRow.appendChild(headerCell);
+        for (var j = 1; j <= numJudges; j++) {
+            var judgeHeaderCell = document.createElement('th');
+            judgeHeaderCell.textContent = (j === 1) ? 'PPSK President' : (j === 2) ? 'Lydo' : 'Unknown';
+            headerRow.appendChild(judgeHeaderCell);
+        }
+
+        // Additional criteria
+        var criteriaData = [
+            { name: 'Creativity and Originality (20%)' },
+            { name: 'Stage Presence and Charisma (20%)' },
+            { name: 'Talent Execution (30%)' },
+            { name: 'Entertainment Value and Audience Impact (15%)' },
+            { name: 'Overall Impact (15%)' }
+        ];
+
+        criteriaData.forEach(function(item) {
+            var row = table.insertRow();
+            var cell = row.insertCell();
+            cell.textContent = item.name;
+            for (var k = 1; k <= numJudges; k++) {
+                var scoreCell = row.insertCell();
+                var scoreInput = document.createElement('input');
+                scoreInput.type = 'number';
+                scoreInput.min = '0';
+                scoreInput.max = '10';
+                scoreInput.step = '0.1';
+                scoreInput.required = true;
+                scoreCell.appendChild(scoreInput);
+            }
+        });
+
+        return table;
+    }
+
+    function calculateScores() {
+        var finalScoresElement = document.getElementById('finalScores');
+        finalScoresElement.innerHTML = '';
+
+        var scores = [];
+
+        // Calculate scores for each contestant
+        for (var i = 1; i <= numContestants; i++) {
+            var totalScore = 0;
+            var contestantScores = [];
+
+            // Iterate through each criterion and calculate total score
+            for (var j = 1; j <= 5; j++) {
+                var criterionScore = 0;
+
+                // Get scores from each judge for the current criterion
+                for (var k = 1; k <= numJudges; k++) {
+                    var score = parseFloat(document.querySelector('#contestants table:nth-of-type(' + i + ') tr:nth-of-type(' + (j + 1) + ') td:nth-of-type(' + (k + 1) + ') input').value);
+                    criterionScore += score;
+                }
+
+                // Normalize criterion score by dividing by the number of judges
+                criterionScore /= numJudges;
+                totalScore += criterionScore;
+
+                // Push criterion score to contestantScores array
+                contestantScores.push(criterionScore.toFixed(2));
+            }
+
+            // Push total score to scores array
+            scores.push({ contestant: i, score: totalScore.toFixed(2), scores: contestantScores });
+        }
+
+        // Sort contestants by score in descending order
+        scores.sort(function(a, b) {
+            return b.score - a.score;
+        });
+
+        // Display final scores with ranks
+        var finalScoresHeader = document.createElement('h3');
+        finalScoresHeader.textContent = 'Final Scores (Ranking):';
+        finalScoresElement.appendChild(finalScoresHeader);
+
+        scores.forEach(function(contestant) {
+            var contestantScore = document.createElement('p');
+            contestantScore.textContent = 'Contestant ' + contestant.contestant + ': ' + contestant.score;
+            finalScoresElement.appendChild(contestantScore);
+
+            // Optional: Display individual criterion scores for each contestant
+            var criterionScores = document.createElement('p');
+            criterionScores.textContent = 'Criterion Scores: ' + contestant.scores.join(', ');
+            finalScoresElement.appendChild(criterionScores);
+        });
+    }
+</script>
+<input type="button" value="Calculate Scores" onclick="calculateScores()">
+</body>
+</html>
